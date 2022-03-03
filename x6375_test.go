@@ -3,9 +3,6 @@ package zipextra
 import (
 	"encoding/hex"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInfoZIPUnicodeComment(t *testing.T) {
@@ -23,11 +20,18 @@ func TestInfoZIPUnicodeComment(t *testing.T) {
 	for _, test := range tests {
 		// encode
 		raw := NewInfoZIPUnicodeComment(test.comment).Encode()
-		require.Equal(t, test.raw, hex.EncodeToString(raw))
+		if test.raw != hex.EncodeToString(raw) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(raw))
+		}
 
 		// decode
 		ucom, err := testHeader(t, raw, ExtraFieldUCom).InfoZIPUnicodeComment()
-		require.NoError(t, err)
-		assert.Equal(t, test.raw, hex.EncodeToString(ucom.Encode()))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if test.raw != hex.EncodeToString(ucom.Encode()) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(ucom.Encode()))
+		}
 	}
 }

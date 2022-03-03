@@ -5,9 +5,6 @@ import (
 	"math"
 	"math/big"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInfoZIPNewUnix(t *testing.T) {
@@ -32,13 +29,24 @@ func TestInfoZIPNewUnix(t *testing.T) {
 	for _, test := range tests {
 		// encode
 		raw := NewInfoZIPNewUnix(test.uid, test.gid).Encode()
-		require.Equal(t, test.raw, hex.EncodeToString(raw))
+		if test.raw != hex.EncodeToString(raw) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(raw))
+		}
 
 		// decode
 		unix, err := testHeader(t, raw, ExtraFieldUnixN).InfoZIPNewUnix()
-		require.NoError(t, err)
-		assert.Equal(t, test.raw, hex.EncodeToString(unix.Encode()))
-		assert.Equal(t, test.uid.String(), unix.Uid.String())
-		assert.Equal(t, test.gid.String(), unix.Gid.String())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if test.raw != hex.EncodeToString(unix.Encode()) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(unix.Encode()))
+		}
+		if test.uid.String() != unix.Uid.String() {
+			t.Errorf("expected uid %s, got %s", test.uid.String(), unix.Uid.String())
+		}
+		if test.gid.String() != unix.Gid.String() {
+			t.Errorf("expected gid %s, got %s", test.gid.String(), unix.Gid.String())
+		}
 	}
 }

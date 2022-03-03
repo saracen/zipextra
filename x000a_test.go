@@ -4,9 +4,6 @@ import (
 	"encoding/hex"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNTFS(t *testing.T) {
@@ -43,11 +40,18 @@ func TestNTFS(t *testing.T) {
 	for _, test := range tests {
 		// encode
 		raw := NewNTFS(test.attributes...).Encode()
-		require.Equal(t, test.raw, hex.EncodeToString(raw))
+		if test.raw != hex.EncodeToString(raw) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(raw))
+		}
 
 		// decode
 		ntfs, err := testHeader(t, raw, ExtraFieldNTFS).NTFS()
-		require.NoError(t, err)
-		assert.Equal(t, test.raw, hex.EncodeToString(ntfs.Encode()))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if test.raw != hex.EncodeToString(ntfs.Encode()) {
+			t.Errorf("expected %s, got %s", test.raw, hex.EncodeToString(ntfs.Encode()))
+		}
 	}
 }

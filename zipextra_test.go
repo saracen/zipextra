@@ -3,9 +3,6 @@ package zipextra
 import (
 	"math/big"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func testHeader(t *testing.T, raw []byte, identifier uint16) ExtraField {
@@ -14,8 +11,12 @@ func testHeader(t *testing.T, raw []byte, identifier uint16) ExtraField {
 	i := b.Read16()
 	s := int(b.Read16())
 
-	require.Equal(t, identifier, i)
-	require.Equal(t, size, s)
+	if identifier != i {
+		t.Errorf("expected identifer %d, got %d", identifier, i)
+	}
+	if size != s {
+		t.Errorf("expected size %d, got %d", size, s)
+	}
 
 	return ExtraField(b.Bytes())
 }
@@ -32,8 +33,17 @@ func TestParse(t *testing.T) {
 	}
 
 	fields, err := Parse(extra)
-	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	assert.Contains(t, fields, ExtraFieldUnixN)
-	assert.Contains(t, fields, ExtraFieldUCom)
+	if _, ok := fields[ExtraFieldUnixN]; !ok {
+		t.Error("expected new unix field")
+	}
+	if _, ok := fields[ExtraFieldUCom]; !ok {
+		t.Error("expected comment field")
+	}
+	if _, ok := fields[ExtraFieldNTFS]; ok {
+		t.Error("unexpected ntfs field")
+	}
 }
