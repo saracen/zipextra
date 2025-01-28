@@ -53,7 +53,10 @@ func ExampleZipExtra() {
 		case zipextra.ExtraFieldUnixN:
 			unix, _ := field.InfoZIPNewUnix()
 			fmt.Printf("UID: %d, GID: %d\n", unix.Uid, unix.Gid)
-
+		}
+	}
+	for id, field := range fields {
+		switch id {
 		case zipextra.ExtraFieldUCom:
 			ucom, _ := field.InfoZIPUnicodeComment()
 			fmt.Printf("Comment: %s\n", ucom.Comment)
